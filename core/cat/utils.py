@@ -71,14 +71,14 @@ def verbal_timedelta(td: timedelta) -> str:
         return "{} ago".format(abs_delta)
 
 def compare_version(version1: str, version2: str) -> bool:
-    """Useful when version comparing is needed. Returns True if version1>=version2"""
+    """Useful when version comparing is needed. Returns True if version1>version2"""
     version1 = version1.replace(".", " ").split()
     version2 = version2.replace(".", " ").split()
     
     version1 = [int(i) for i in version1]
     version2 = [int(i) for i in version2]
 
-    return version1>=version2
+    return version1>version2
 
 def get_base_url():
     """Allows exposing the base url."""
