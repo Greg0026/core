@@ -2,6 +2,7 @@ import os
 import sys
 import json
 import glob
+import tomli
 import traceback
 import importlib
 from typing import Dict
@@ -9,7 +10,7 @@ from inspect import getmembers
 from pydantic import BaseModel
 
 from cat.mad_hatter.decorators import CatTool, CatHook, CatPluginOverride
-from cat.utils import to_camel_case
+from cat.utils import to_camel_case, compare_version
 from cat.log import log
 
 
@@ -61,6 +62,14 @@ class Plugin:
         self._active = False
 
     def activate(self):
+        # define the current cat version and the minimun cat version needed to activate the plugin
+        with open("pyproject.toml", "rb") as f:
+            cat_version = tomli.load(f)["project"]["version"]
+        min_cat_version = self._manifest["min_cat_version"]
+        
+        if compare_version(min_cat_version, cat_version):
+            raise Exception(f"{min_cat_version} version is needed")
+            
         # lists of hooks and tools
         self._hooks, self._tools, self._plugin_overrides = self._load_decorated_functions()
         self._active = True
@@ -197,6 +206,7 @@ class Plugin:
         meta["tags"] = json_file_data.get("tags", "unknown")
         meta["thumb"] = json_file_data.get("thumb", "")
         meta["version"] = json_file_data.get("version", "0.0.1")
+        meta["min_cat_version"] = json_file_data.get("min_cat_version", "0.0.1")
 
         return meta
     
